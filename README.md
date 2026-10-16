@@ -85,8 +85,6 @@ Hand tracking (webcam)  --- 42 values via OSC --->  Wekinator
 
 The robot arm was assembled from laser-cut plywood parts. The frame, links and base provide structural support, while the servo motors actuate the joints. The arm uses four servo motors, giving it four controllable degrees of freedom. Each servo moves between programmed angle positions rather than rotating continuously.
 
-*(To add: the dimensions of the laser-cut parts, and the achievable range of motion of each joint in degrees.)*
-
 ### 5.2 Electronics and wiring
 
 The four servo motors are connected to Arduino pins **9, 10, 11 and 12**. The Arduino receives commands from Processing through serial communication at **9600 baud**.
@@ -95,7 +93,7 @@ Because four servos can draw more current than the Arduino can safely supply, th
 
 #### Circuit diagram
 
-<img width="2720" height="1960" alt="circuit" src="https://github.com/user-attachments/assets/9a8c103d-7174-45a9-a324-e3bfe41cc7cc" />
+<img width="2720" height="1960" alt="circuit" src="https://github.com/user-attachments/assets/d42b0fd3-a04e-456c-8ef3-85b4b9b50cec" />
 
 
 ### 5.3 Software and control
@@ -143,17 +141,17 @@ The 21 points, each with an x and a y value, give **42 inputs**, sent to Wekinat
 
 ## 6. Repository contents
 
-| Folder | Role | Stage |
-|--------|------|-------|
+| File or folder | Role | Stage |
+|----------------|------|-------|
 | [`debug_arduino_final`](debug_arduino_final) | General unit test for the Arduino and the servo outputs | Step 1 |
-| [`potentiometers_debug`](potentiometers_debug) | Unit test for the potentiometers, one servo at a time | Step 2 |
-| [`talk_test_arduino`](talk_test_arduino) | Arduino half of the Processing ↔ Arduino communication test | Step 3 |
-| [`talk_test_processing`](talk_test_processing) | Processing half of the same test, triggered with keys 1, 2 and 3 | Step 3 |
-| [`processing_final`](processing_final) | Final Processing sketch, receives from Wekinator and writes to serial | Step 4 |
-| [`weki_processing_arduino_final`](weki_processing_arduino_final) | Final Arduino sketch for the complete system | Step 4 |
-| [`wekinator_final`](wekinator_final) | Trained Wekinator project| Step 4 |
-| [`hand_gestures.py`] | Hand tracking script. Reads the webcam, normalises the 21 hand landmarks and sends 42 values to Wekinator over OSC on port 6448. Run from the terminal. |
-| [`hand_landmarker.task`] | The MediaPipe hand landmark model |
+| [`talk_test_arduino`](talk_test_arduino) | Arduino half of the Processing ↔ Arduino communication test | Step 2 |
+| [`talk_test_processing`](talk_test_processing) | Processing half of the same test, triggered with keys 1, 2 and 3 | Step 2 |
+| [`processing_final`](processing_final) | Final Processing sketch, receives from Wekinator and writes to serial | Step 3 |
+| [`weki_processing_arduino_final`](weki_processing_arduino_final) | Final Arduino sketch for the complete system | Step 3 |
+| [`wekinator_final`](wekinator_final) | Trained Wekinator project | Step 3 |
+| [`hand_gestures.py`] | Hand tracking script. Reads the webcam, normalises the 21 hand landmarks and sends 42 values to Wekinator over OSC on port 6448. Run from the terminal. | Step 3 |
+| [`hand_landmarker.task`] | The MediaPipe hand landmark model. Must sit in the same folder as the script. | Step 3 |
+| [`potentiometers_debug`](potentiometers_debug) | **Optional extra.** Experimental direct control of the servos with four potentiometers. Not part of the final system. | Step 5 |
 
 ---
 
@@ -163,7 +161,7 @@ Run these in order. Do not skip ahead; each step assumes the previous one passed
 
 1. Connect the external power to the power board and switch it on. Connect the Arduino to the laptop by USB.
 2. Upload `weki_processing_arduino_final` to the Arduino.
-3. Open `processing_final` and set the correct **serial port number** (see Step 3B below).
+3. Open `processing_final` and set the correct **serial port number** (see Step 2B below).
 4. Start the tracking script from the terminal (`python hand_gestures.py`) and check that the preview window reads "hand found" in green.
 5. Open the trained Wekinator project. Confirm **42 inputs and 1 output**, and that **both OSC lights are green**, for OSC in and OSC out.
 6. Run the Processing sketch, then press **Run** in Wekinator.
@@ -175,11 +173,15 @@ Run these in order. Do not skip ahead; each step assumes the previous one passed
 
 The system is debugged **from the bottom up**. Start at Step 1. Only move on once the current step passes. If a later step fails, come back down to the step below it.
 
+Steps 1 to 4 are the working methodology and are sufficient on their own. Step 5 is an optional extra and is not required for the system to be debugged.
+
 ---
 
-## Step 1 — General debug (physical and power)
+## Step 1 — General debug (physical, power and servos)
 
 Run this before anything else, and again every time anything is moved or unplugged.
+
+**Checklist:**
 
 1. Every cable on the breadboard is pushed **fully** into its row. A cable that looks seated can still be loose.
 2. The plywood structure is screwed in correctly and nothing is cracked or free to rotate.
@@ -188,36 +190,21 @@ Run this before anything else, and again every time anything is moved or unplugg
 5. The Arduino is connected to the laptop by USB and its power LED is on.
 6. The servos are powered from the external supply, **not** from the Arduino pins, and the grounds are shared.
 
-**Unit test:** upload `debug_arduino_final` and confirm the servos respond.
+**Unit test:** upload `debug_arduino_final` and confirm the servos respond. Test **one servo at a time** so that a fault can be traced to a single joint rather than to the arm as a whole.
 
-**Expected observation:** all four servos move through their range.
-
-* If they do, go to **Step 3**.
-* If they do not, or only some do, go to **Step 2**.
-
----
-
-## Step 2 — Potentiometer debug (isolating the fault)
-
-This step exists to find out *which* component is at fault when Step 1 does not work.
-
-**Checks:** repeat every check in Step 1, then check every wire going to and from each potentiometer, including the shared ground and the 5 V line.
-
-**Unit test:** upload `potentiometers_debug` and test **one servo at a time**, turning each potentiometer individually through its full range.
+**Expected observation:** each of the four servos moves independently, over its entire expected range.
 
 **Decision tree — when one servo does not respond:**
 
-1. **Check the code first.** Open the sketch and confirm the pin numbers and the value mapping for that servo. The code is fully commented, so the relevant line is quick to find.
-2. **If the code is correct, check the wiring** of that potentiometer and that servo: signal, 5 V and ground, at both the breadboard and the component.
-3. **If the wiring is correct, the fault is the component itself** — that specific servo or that specific potentiometer. Swap it with a known working one to confirm.
+1. **Check the code first.** Open the sketch and confirm the pin number and the angle range for that servo. The code is fully commented, so the relevant line is quick to find.
+2. **If the code is correct, check the wiring** of that servo: signal, 5 V and ground, at both the breadboard and the motor.
+3. **If the wiring is correct, the fault is the motor itself.** Swap it with a known working servo to confirm.
 
-The value of this test is that it narrows a whole non-functioning arm down to a single identified part.
-
-**Expected observation:** each of the four servos moves independently, over its entire expected range, when its own potentiometer is turned.
+The value of this test is that it narrows a whole non-functioning arm down to a single identified part. Once all four servos pass, go to **Step 2**.
 
 ---
 
-## Step 3 — Messaging debug (Arduino and Processing talking)
+## Step 2 — Messaging debug (Arduino and Processing talking)
 
 **Unit test:** two files that must both be running.
 
@@ -227,11 +214,11 @@ The value of this test is that it narrows a whole non-functioning arm down to a 
 
 **Expected observation:** each key press sends a message to the Arduino, the Arduino acts on it and sends a signal back, and the reply is printed in the Processing console. Seeing the reply confirms three things at once: the serial link is open, the Arduino is receiving, and the Arduino is running correctly.
 
-**If nothing happens, it is almost always the serial port.** See Step 3B.
+**If nothing happens, it is almost always the serial port.** See Step 2B.
 
 ---
 
-## Step 3B — Serial port check (applies to Step 3 and Step 4)
+## Step 2B — Serial port check (applies to Step 2 and Step 3)
 
 The serial port number is **different on every laptop**, so it has to be set on whichever machine is being used.
 
@@ -240,11 +227,11 @@ The serial port number is **different on every laptop**, so it has to be set on 
 3. In the code, find the line where the serial connection is opened (`new Serial(...)`) and make the index match that number.
 4. Close the Arduino Serial Monitor if it is open. Only one program can use the port at a time.
 
-Any failure in Step 3 or Step 4 where nothing at all reaches the Arduino should be treated as a wrong port until proven otherwise.
+Any failure in Step 2 or Step 3 where nothing at all reaches the Arduino should be treated as a wrong port until proven otherwise.
 
 ---
 
-## Step 4 — Full system debug (Wekinator)
+## Step 3 — Full system debug (Wekinator)
 
 **Running the tracking script**
 
@@ -267,13 +254,13 @@ A window opens showing the webcam feed with the tracked points drawn on the hand
 
 **Decision tree — if the system does not respond:**
 
-1. **Nothing reaches the Arduino at all** → wrong serial port in Processing. Go to **Step 3B**.
+1. **Nothing reaches the Arduino at all** → wrong serial port in Processing. Go to **Step 2B**.
 2. **Wekinator shows no input** → the tracking script is not running, no hand is in frame, or the input count is not 42.
-3. **The arm responds but the movement is not smooth** → see Step 5.
+3. **The arm responds but the movement is not smooth** → see Step 4.
 
 ---
 
-## Step 5 — Movement quality debug (power)
+## Step 4 — Movement quality debug (power)
 
 **Symptom:** the gestures are recognised and the arm moves, but the movement stutters or is weak.
 
@@ -287,16 +274,32 @@ Then repeat **Step 1** and work back up.
 
 ---
 
+## Step 5 — Optional extra: potentiometer control (experimental, not part of the final system)
+
+> **This step is an addition, not a dependency.** The debugging methodology in Steps 1 to 4 is complete and works on its own. We are including this version because we built it and think it is worth showing, but it is **still a little unreliable** and should not be treated as part of the final submitted system.
+
+**What it is.** A version of the arm in which each of the four servos is driven directly by its own potentiometer, with no computer in the loop. Each potentiometer is wired to an analogue input on the Arduino, with its outer pins on 5 V and ground. The sketch reads the analogue value of each potentiometer and maps it to an angle for the matching servo, so turning a dial moves one joint in real time.
+
+**Why we built it.** It gives a purely physical way of moving the arm, independent of Processing, Wekinator and the webcam. When it is working, it is a quick way to confirm that a servo and its wiring are sound without involving any software beyond the Arduino.
+
+**How to run it.** Upload `potentiometers_debug` to the Arduino, then turn each potentiometer one at a time and watch the matching joint.
+
+**Why it is marked experimental.** The readings are not yet stable. The values drift and jitter around their position, most likely a combination of noisy analogue readings and the shared power rail that already affects movement smoothness (see Step 4). We have not added smoothing or filtering to the readings, so the arm can twitch even when the dials are untouched. For that reason it is kept separate from the final system, and any fault found with it should be confirmed with `debug_arduino_final` in Step 1 before being treated as real.
+
+**If we continue with it:** average each analogue reading over several samples, give the potentiometers a cleaner power source separate from the servo rail, and add a dead band so small fluctuations do not move the joint.
+
+---
+
 ## 9. Quick reference: the order
 
-| Step | Test | Folder | Run it when |
-|------|------|--------|-------------|
-| 1 | General debug | `debug_arduino_final` | Always first |
-| 2 | Potentiometer debug | `potentiometers_debug` | Step 1 fails, or to isolate one faulty part |
-| 3 | Messaging debug | `talk_test_arduino` + `talk_test_processing` | Before using the laptop to control the arm |
-| 3B | Serial port check | — | Any time Processing and Arduino do not talk |
-| 4 | Full system | `weki_processing_arduino_final` + `processing_final` + `wekinator_final` | Once Steps 1 to 3 pass |
-| 5 | Power / smoothness | — | The arm moves but not smoothly |
+| Step | Test | Files | Run it when |
+|------|------|-------|-------------|
+| 1 | General debug, one servo at a time | `debug_arduino_final` | Always first |
+| 2 | Messaging debug | `talk_test_arduino` + `talk_test_processing` | Before using the laptop to control the arm |
+| 2B | Serial port check | — | Any time Processing and Arduino do not talk |
+| 3 | Full system | `weki_processing_arduino_final` + `processing_final` + `wekinator_final` + `hand_gestures.py` | Once Steps 1 and 2 pass |
+| 4 | Power / smoothness | — | The arm moves but not smoothly |
+| 5 | Optional extra, experimental | `potentiometers_debug` | Not required. Only to demonstrate direct physical control |
 
 **Rule of thumb:** every time you move the arm, re-plug anything, or change laptop, check the wires and the port before assuming the code is broken.
 
@@ -312,7 +315,7 @@ To test the system we first checked that each servo could move independently and
 2. All four servos moved smoothly between programmed positions.
 3. Each servo could be actuated independently over its full expected range.
 
-*(Optional metrics to add: classification accuracy over a set number of attempts per gesture, repeatability of each pose, and the measured range of motion of each joint.)*
+The potentiometer version described in Step 5 was also built and tested, but its readings were not stable enough for it to be included in the final system.
 
 ---
 
@@ -328,5 +331,4 @@ To test the system we first checked that each servo could move independently and
 
 1. Move from classification to regression so that hand position maps continuously to joint angles rather than to fixed poses.
 2. Add position feedback or end-stops so the arm knows where it actually is rather than where it was commanded to go.
-3. Strengthen the joints and integrate the wiring and power into the base for a self-contained unit.
-
+3. Stabilise the potentiometer version with smoothing and a cleaner power supply so that physical and gesture control can be switched between freely.
