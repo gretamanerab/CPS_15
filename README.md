@@ -330,8 +330,3 @@ To test the system we first checked that each servo could move independently and
 2. Add position feedback or end-stops so the arm knows where it actually is rather than where it was commanded to go.
 3. Strengthen the joints and integrate the wiring and power into the base for a self-contained unit.
 
----
-
-## 12. Group
-
-*(Add the names of all group members here.)*
