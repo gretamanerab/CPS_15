@@ -144,8 +144,6 @@ The 21 points, each with an x and a y value, give **42 inputs**, sent to Wekinat
 | File or folder | Role | Stage |
 |----------------|------|-------|
 | [`debug_arduino_final`](debug_arduino_final) | General unit test for the Arduino and the servo outputs | Step 1 |
-| [`talk_test_arduino`](talk_test_arduino) | Arduino half of the Processing ↔ Arduino communication test | Step 2 |
-| [`talk_test_processing`](talk_test_processing) | Processing half of the same test, triggered with keys 1, 2 and 3 | Step 2 |
 | [`processing_final`](processing_final) | Final Processing sketch, receives from Wekinator and writes to serial | Step 3 |
 | [`weki_processing_arduino_final`](weki_processing_arduino_final) | Final Arduino sketch for the complete system | Step 3 |
 | [`wekinator_final`](wekinator_final) | Trained Wekinator project | Step 3 |
@@ -204,21 +202,11 @@ The value of this test is that it narrows a whole non-functioning arm down to a 
 
 ---
 
-## Step 2 — Messaging debug (Arduino and Processing talking)
 
-**Unit test:** two files that must both be running.
-
-1. Upload `talk_test_arduino` to the Arduino.
-2. Open and run `talk_test_processing`.
-3. Press the keys **1**, **2** and **3** in the Processing window.
-
-**Expected observation:** each key press sends a message to the Arduino, the Arduino acts on it and sends a signal back, and the reply is printed in the Processing console. Seeing the reply confirms three things at once: the serial link is open, the Arduino is receiving, and the Arduino is running correctly.
-
-**If nothing happens, it is almost always the serial port.** See Step 2B.
 
 ---
 
-## Step 2B — Serial port check (applies to Step 2 and Step 3)
+## Step 2 — Serial port check (applies to Step 3)
 
 The serial port number is **different on every laptop**, so it has to be set on whichever machine is being used.
 
