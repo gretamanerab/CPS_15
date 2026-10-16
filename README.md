@@ -150,7 +150,7 @@ The 21 points, each with an x and a y value, give **42 inputs**, sent to Wekinat
 | [`weki_processing_arduino_final`](weki_processing_arduino_final) | Final Arduino sketch for the complete system | Step 3 |
 | [`wekinator_final`](wekinator_final) | Trained Wekinator project | Step 3 |
 | [`hand_gestures.py`] | Hand tracking script. Reads the webcam, normalises the 21 hand landmarks and sends 42 values to Wekinator over OSC on port 6448. Run from the terminal. | Step 3 |
-| [`hand_landmarker.task`] | The MediaPipe hand landmark model. Must sit in the same folder as the script. | Step 3 |
+| [`hand_landmarker.task`] | The MediaPipe hand landmark model | Step 3 |
 | [`potentiometers_debug`](potentiometers_debug) | **Optional extra.** Experimental direct control of the servos with four potentiometers. Not part of the final system. | Step 5 |
 
 ---
