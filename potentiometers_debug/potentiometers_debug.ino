@@ -3,7 +3,7 @@
 #include <Servo.h>   //import library
 #define Number_servos 4     //number of servos used
 Servo myservo[Number_servos]; //activating servos
-int Servo_pins[Number_servos] = { 10, 9, 11, 13 }; //define the pin we are going to use for the servos (servo 0, 1, 2, 3)
+int Servo_pins[Number_servos] = { 10, 9, 11, 12 }; //define the pin we are going to use for the servos (servo 0, 1, 2, 3)
 int Pot_pins[Number_servos] = { A0, A1, A2, A3 }; //define the pin we are going to use for the potentiometers (pot 0, 1, 2, 3)
 int servoL[Number_servos] = { 0, 40, 60, 65 }; //Servo limits of the movement (Left)
 int servoR[Number_servos] = { 180, 160, 130, 145 }; //Servo limits of the movement (Right)
